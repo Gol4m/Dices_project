@@ -1,27 +1,15 @@
+from django.db.models.expressions import result
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
 import random
 
-def roll_d4():
-    return str(random.randint(1, 4))
-
-def roll_d6():
-    return str(random.randint(1, 6))
-
-def roll_d8():
-    return str(random.randint(1, 8))
-
-def roll_d10():
-    return str(random.randint(1, 10))
-
-def roll_d12():
-    return str(random.randint(1, 12))
-
-def roll_d20():
-    return str(random.randint(1, 20))
-
 # Create your views here.
+
+def roll_dice(dice: str):
+    highest_number = int(dice.replace('d', ''))
+    return str(random.randint(1, highest_number))
+
 
 type_of_dices = {
     'd4': 'Каждая грань имеет три числа, расположенных таким образом, что вертикальное число, расположенное либо около вершины, либо около противоположного края, одинаково на всех трех видимых гранях. Вертикальные числа представляют собой значение броска. Эта кость плохо катится, и поэтому ее обычно подбрасывают в воздух.',
@@ -37,31 +25,16 @@ def get_main_page(request):
     data = {
         'dices': type_of_dices.keys(),
     }
-
     return render(request, 'dice/main_page.html', context=data)
 
 
 def get_info_dice(request, dice_n):
-    if dice_n == 'd4':
-        result = roll_d4()
-    elif dice_n == 'd6':
-        result = roll_d6()
-    elif dice_n == 'd8':
-        result = roll_d8()
-    elif dice_n == 'd10':
-        result = roll_d10()
-    elif dice_n == 'd12':
-        result = roll_d12()
-    elif dice_n == 'd20':
-        result = roll_d20()
-    else:
-        result = "lmao what"
 
     if dice_n in type_of_dices.keys():
         data = {
             'dice_name': dice_n,
             'info_about_dice': type_of_dices.get(dice_n),
-            'result': result,
+            'roll_result': roll_dice(dice_n),
             'dices': type_of_dices.keys(),
         }
         return render(request, 'dice/dice_info.html', context=data)
