@@ -1,0 +1,7 @@
+<nav>
+  <a href="{% url 'main-page' %}">Главная</a> |
+
+  {% for dice in dices %}
+    <a href="{% url 'dice-page' dice %}"> {{dice|title}}</a>
+  {% endfor %}
+</nav>

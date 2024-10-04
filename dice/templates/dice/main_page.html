@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Главная страница Dices </title>
+</head>
+<body>
+<h1>{% include 'includes/navbar.html' %}</h1>
+<h2>smth there</h2>
+
+{% for dice in dices %}
+
+<a href="{% url 'dice-page' dice %}">{{dice|title}}</a>
+
+{% endfor %}
+
+
+
+</body>
+</html>
