@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Страница кубика {{ dice_name }}</title>
+    <script>
+        function rollDice(diceName) {
+            // Отправляем AJAX запрос
+            fetch(`/roll/${diceName}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Обновляем результат броска на странице
+                    document.getElementById('roll-result').textContent = data.roll_result;
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
 </head>
 <body>
 <h1>{% include 'includes/navbar.html' %}</h1>
@@ -10,9 +22,10 @@
 
 <p> {{ dice_name }} - {{ info_about_dice }} </p>
 
-<a href="{% url 'dice-page' dice_name %}"> <button>Крутить!</button>  </a>
+<!-- Добавляем кнопку с вызовом функции rollDice -->
+<button onclick="rollDice('{{ dice_name }}')">Крутить!</button>
 
-<p> Результат броска: {{ roll_result }} </p>
+<p> Результат броска: <span id="roll-result">{{ roll_result }}</span> </p>
 
 </body>
 </html>

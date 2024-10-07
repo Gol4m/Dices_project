@@ -1,5 +1,4 @@
-from django.db.models.expressions import result
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 
 import random
@@ -40,4 +39,12 @@ def get_info_dice(request, dice_n):
         return render(request, 'dice/dice_info.html', context=data)
     else:
         return HttpResponseNotFound(f"Увы кубик {dice_n} не найден ;(")
+
+
+def roll_dice_ajax(request, dice_n):
+    if dice_n in type_of_dices.keys():
+        roll_result = roll_dice(dice_n)
+        return JsonResponse({'roll_result': roll_result})
+    else:
+        return JsonResponse({'error': f'Увы кубик {dice_n} не найден ;('}, status=404)
 
