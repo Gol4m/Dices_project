@@ -10,11 +10,17 @@
 
 {% for dice in dices %}
 
-<a href="{% url 'dice-page' dice %}">{{dice|title}}</a>
+    <a href="{% url 'dice-page' dice %}">
+        {{dice|title}}
+    </a>
 
 {% endfor %}
 
-
+<h4>
+    <a href="{% url 'multi-throw' %}">
+        <button> Мульти-бросок кубиков </button>
+    </a>
+</h4>
 
 </body>
 </html>

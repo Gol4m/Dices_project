@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Мульти-бросок</title>
+    <script>
+        let selectedDices = [];
+
+        const diceRanges = {
+            'd4': {min: 1, max: 4},
+            'd6': {min: 1, max: 6},
+            'd8': {min: 1, max: 8},
+            'd10': {min: 1, max: 10},
+            'd12': {min: 1, max: 12},
+            'd20': {min: 1, max: 20},
+        };
+
+        function addDice(diceName) {
+            selectedDices.push(diceName);
+            updateSelectedDices();
+            updateRollRange();
+        }
+
+        function updateSelectedDices() {
+            const selectedList = document.getElementById('selected-dices');
+            selectedList.innerHTML = '';
+            selectedDices.forEach(dice => {
+                const li = document.createElement('li');
+                li.textContent = dice;
+                selectedList.appendChild(li);
+            });
+        }
+
+        function updateRollRange() {
+            let minSum = 0;
+            let maxSum = 0;
+
+            selectedDices.forEach(dice => {
+                if (dice in diceRanges) {
+                    minSum += diceRanges[dice].min;
+                    maxSum += diceRanges[dice].max;
+                }
+            });
+
+            const rangeDisplay = document.getElementById('roll-range');
+            if (selectedDices.length > 0) {
+                rangeDisplay.textContent = `${minSum} ~ ${maxSum}`;
+            } else {
+                rangeDisplay.textContent = '0';
+            }
+        }
+
+        function rollSelectedDices() {
+            if (selectedDices.length === 0) {
+                alert('Вы не выбрали ни одного кубика!');
+                return;
+            }
+
+            fetch('/multi-roll/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({dices: selectedDices})
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Обновляем сумму бросков
+                document.getElementById('roll-result').textContent = data.total_result;
+
+                // Отображаем результаты бросков каждого кубика
+                const diceResults = document.getElementById('dice-results');
+                diceResults.innerHTML = ''; // Очищаем старые результаты
+
+                data.dice_rolls.forEach(roll => {
+                    const li = document.createElement('li');
+                    li.textContent = `${roll.dice}: выпало ${roll.result}`;
+                    diceResults.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
+</head>
+<body>
+<h1>{% include 'includes/navbar.html' %}</h1>
+<h2>Мульти бросок кубиков</h2>
+
+<p>Здесь вы можете выбрать, какие и сколько кубиков хотите кинуть вместе:</p>
+
+{% for dice in dices %}
+  <button onclick="addDice('{{ dice }}')">+ {{ dice|title }}</button>
+{% endfor %}
+
+<h3>Выбранные кубики:</h3>
+<ul id="selected-dices">
+    <!-- Здесь будут отображаться выбранные кубики -->
+</ul>
+
+<h3>Возможный результат:</h3>
+<p id="roll-range">0</p> <!-- Здесь будет показываться диапазон возможных значений -->
+
+<br>
+
+<!-- Кнопка для выполнения броска всех выбранных кубиков -->
+<button onclick="rollSelectedDices()">Крутить все!</button>
+
+<h3>Сумма всех бросков:</h3>
+<p id="roll-result">0</p>
+
+<h3>Результаты каждого кубика:</h3>
+<ul id="dice-results">
+    <!-- Здесь будут отображаться результаты бросков для каждого кубика -->
+</ul>
+
+</body>
+</html>

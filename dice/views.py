@@ -1,6 +1,6 @@
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
-
+import json
 import random
 
 # Create your views here.
@@ -39,6 +39,41 @@ def get_info_dice(request, dice_n):
         return render(request, 'dice/dice_info.html', context=data)
     else:
         return HttpResponseNotFound(f"Увы кубик {dice_n} не найден ;(")
+
+
+def get_multi_throw(request):
+    data = {
+        'dices': type_of_dices.keys(),
+    }
+    return render(request, 'dice/multi_throw.html', context=data)
+
+
+# Функция для обработки мульти-броска кубиков
+def roll_multi_dice(request):
+    if request.method == 'POST':
+        # Получение данных из запроса в формате JSON
+        try:
+            body = json.loads(request.body)  # Загружаем JSON из тела запроса
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Некорректный формат JSON'}, status=400)
+
+        dices = body.get('dices', [])
+
+        total_result = 0
+        dice_rolls = []
+
+        for dice in dices:
+            if dice in type_of_dices.keys():
+                result = roll_dice(dice)
+                total_result += int(result)
+                dice_rolls.append({'dice': dice, 'result': result})
+
+        return JsonResponse({
+            'total_result': total_result,
+            'dice_rolls': dice_rolls
+        })
+    else:
+        return JsonResponse({'error': 'Некорректный запрос'}, status=400)
 
 
 def roll_dice_ajax(request, dice_n):
